@@ -1,0 +1,31 @@
+{
+  "name": "evosoftcz/migrations",
+  "description": "Oracle&Postgresql migrations based on Nextras Migrations",
+  "keywords": [
+    "migrations",
+    "oracle",
+    "postgresql"
+  ],
+  "type": "library",
+  "license": "MPL-2.0",
+  "homepage": "https://evosoft.cz",
+  "authors": [
+    {
+      "name": "evosoft sro",
+      "homepage": "https://evosoft.cz"
+    },
+    {
+      "name": "Dominik Procházka (domm98cz@gmail.com)",
+      "homepage": "https://Domm.cz"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "nextras/migrations": "^3.1"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true
+  }
+}
