@@ -1,2 +1,3 @@
 services:
-    - \Migrations\Commands\CustomCommand
+    - Migrations\Commands\CustomCommand
+    - Migrations\Commands\LoadCommand

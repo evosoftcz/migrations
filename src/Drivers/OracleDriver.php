@@ -3,6 +3,7 @@
 namespace Migrations\Drivers;
 
 use DateTime;
+use Nextras\Migrations\Drivers\PgSqlDriver;
 use Nextras\Migrations\Entities\Migration;
 use Nextras\Migrations\IDriver;
 use Nextras\Migrations\LockException;
@@ -14,6 +15,43 @@ use Nextras\Migrations\Drivers\BaseDriver;
  */
 class OracleDriver extends BaseDriver implements IDriver
 {
+    public function loadFile($path)
+    {
+//        $content = @file_get_contents($path);
+//        if ($content === FALSE) {
+//            throw new IOException("Cannot open file '$path'.");
+//        }
+        $queries = 0;
+        dump('loadfile');
+        $fp = file($path);
+        $query = '';
+        foreach ($fp as $line) {
+            if ($line != '' && strpos($line, '--') === false) {
+                $query .= $line;
+//                if (substr($query, -1) === ';'.PHP_EOL.PHP_EOL || $line === PHP_EOL) {
+                if ($line === PHP_EOL) {
+//                    dump('query');
+//                    dump($query);
+
+                    if (substr($query, -1, 1) === ';') {
+                        $query = substr($query, 0, -1);
+                    }
+
+                    try {
+                        $this->dbal->exec($query);
+                    } catch (\Exception $e) {
+                        \Tracy\Debugger::log($e);
+                    }
+                    $queries++;
+                    $query = '';
+                }
+            }
+        }
+
+        return $queries;
+    }
+
+
     /**
      * @param bool $enabled
      */
@@ -93,7 +131,7 @@ class OracleDriver extends BaseDriver implements IDriver
     public function beginTransaction()
     {
         dump('begin');
-        $this->dbal->exec('BEGIN');
+        $this->dbal->exec('SET TRANSACTION READ WRITE');
     }
 
 
@@ -138,15 +176,17 @@ class OracleDriver extends BaseDriver implements IDriver
     public function insertMigration(Migration $migration)
     {
         dump('ins');
-        $migration->id = (int) $this->dbal->exec("
-        INSERT INTO {$this->tableNameQuoted} (`group`, `file`, `checksum`, `executed`, `ready`) VALUES (" .
+        $this->dbal->exec("
+        INSERT INTO {$this->tableNameQuoted} (\"GROUP\", \"FILE\", CHECKSUM, EXECUTED, READY) VALUES (" .
             $this->dbal->escapeString($migration->group) . "," .
             $this->dbal->escapeString($migration->filename) . "," .
             $this->dbal->escapeString($migration->checksum) . "," .
             $this->dbal->escapeDateTime($migration->executedAt) . "," .
             $this->dbal->escapeBool(FALSE) .
-        ") RETURNING ID
+        ")
 		");
+        $migration->id = (int) $this->dbal->query('SELECT MAX(ID) FROM ' . $this->tableNameQuoted)[0]['id'];
+
     }
 
 
@@ -164,27 +204,26 @@ class OracleDriver extends BaseDriver implements IDriver
     public function getAllMigrations()
     {
         dump('all');
-
         $migrations = array();
-        $result = $this->dbal->query("SELECT * FROM {$this->tableNameQuoted} ORDER BY executed");
+        $result = $this->dbal->query("SELECT * FROM {$this->tableNameQuoted} ORDER BY EXECUTED");
         foreach ($result as $row) {
-            if (is_string($row['executed'])) {
-                $executedAt = new DateTime($row['executed']);
+            if (is_string($row['EXECUTED'])) {
+                $executedAt = new DateTime($row['EXECUTED']);
 
-            } elseif ($row['executed'] instanceof \DateTimeImmutable) {
-                $executedAt = new DateTime('@' . $row['executed']->getTimestamp());
+            } elseif ($row['EXECUTED'] instanceof \DateTimeImmutable) {
+                $executedAt = new DateTime('@' . $row['EXECUTED']->getTimestamp());
 
             } else {
-                $executedAt = $row['executed'];
+                $executedAt = $row['EXECUTED'];
             }
 
             $migration = new Migration;
-            $migration->id = (int) $row['id'];
-            $migration->group = $row['group'];
-            $migration->filename = $row['file'];
-            $migration->checksum = $row['checksum'];
+            $migration->id = (int) $row['ID'];
+            $migration->group = $row['GROUP'];
+            $migration->filename = $row['FILE'];
+            $migration->checksum = $row['CHECKSUM'];
             $migration->executedAt = $executedAt;
-            $migration->completed = (bool) $row['ready'];
+            $migration->completed = (bool) $row['READY'];
 
             $migrations[] = $migration;
         }
@@ -222,14 +261,17 @@ class OracleDriver extends BaseDriver implements IDriver
         dump('init');
         $out = '';
         foreach ($files as $file) {
-            $out .= "INSERT INTO {$this->tableNameQuoted} ";
-            $out .= "(`GROUP`, `FILE`, `CHECKSUM`, `EXECUTED`, `READY`) VALUES (" .
+            $x = "INSERT INTO {$this->tableNameQuoted} (`GROUP`, `FILE`, `CHECKSUM`, `EXECUTED`, `READY`) VALUES (" .
                 $this->dbal->escapeString($file->group->name) . ", " .
                 $this->dbal->escapeString($file->name) . ", " .
                 $this->dbal->escapeString($file->checksum) . ", " .
                 $this->dbal->escapeDateTime(new DateTime('now')) . ", " .
                 $this->dbal->escapeBool(TRUE) .
                 ");\n";
+
+            dump($x);
+
+            $out .= $x;
         }
         return $out;
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Migrations\Commands\CustomCommand;
+namespace Migrations\Commands;
 
 use Nextras\Migrations\Bridges\SymfonyConsole\BaseCommand;
 use Nextras\Migrations\Engine\Runner;
@@ -27,7 +27,6 @@ class LoadCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        dump($this->config);
         return $this->runMigrations(Runner::MODE_INIT, $this->config);
     }
 

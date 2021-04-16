@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Migrations\Commands\CustomCommand;
+namespace Migrations\Commands;
 
 use Nextras\Migrations\Bridges\SymfonyConsole\BaseCommand;
 use Nextras\Migrations\Engine\Runner;
@@ -55,8 +55,8 @@ class CustomCommand extends BaseCommand
         }
 
         return implode(' or ', array_filter([
-                                                implode(', ', array_slice($options, 0, -1)),
-                                                array_slice($options, -1)[0],
-                                            ]));
+            implode(', ', array_slice($options, 0, -1)),
+            array_slice($options, -1)[0],
+        ]));
     }
 }

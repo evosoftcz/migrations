@@ -10,6 +10,20 @@ namespace Migrations\DI;
  */
 class MigrationsExtension extends \Nextras\Migrations\Bridges\NetteDI\MigrationsExtension
 {
+    /**
+     *
+     */
+    public function loadConfiguration(): void
+    {
+        parent::loadConfiguration();
+        
+        $config = $this->loadFromFile(__DIR__ . '/config.neon');
+        $this->compiler->loadDefinitionsFromConfig($config['services']);
+
+        $builder = $this->getContainerBuilder();
+        $this->config = (array)$this->config;
+    }
+
     /** @var array */
     protected $dbals = [
         'dibi' => 'Nextras\Migrations\Bridges\Dibi\DibiAdapter',
