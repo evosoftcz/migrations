@@ -20,8 +20,7 @@ class MigrationsExtension extends \Nextras\Migrations\Bridges\NetteDI\Migrations
         'nette' => 'Nextras\Migrations\Bridges\NetteDatabase\NetteAdapter',
         'nextras' => 'Nextras\Migrations\Bridges\NextrasDbal\NextrasAdapter',
         // evosoft
-        'eda' => 'Migrations\Adapters\EdaAdapter',
-        'evosoft_dibi' => 'Migrations\Adapters\EvosoftDibiAdapter'
+        'eda' => 'Migrations\Adapters\EdaAdapter'
     ];
 
     /** @var array */

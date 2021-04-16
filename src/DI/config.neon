@@ -1,0 +1,2 @@
+services:
+    - \Migrations\Commands\CustomCommand

@@ -13,15 +13,17 @@ use PDO;
  */
 class EdaAdapter implements IDbal
 {
-    /** @var Nette\Database\Connection */
+    /** @var \Eda\Connection */
     private $conn;
 
-
-    public function __construct(Nette\Database\Connection $ndb)
+    /**
+     * EdaAdapter constructor.
+     * @param \Eda\Connection $conn
+     */
+    public function __construct(\Eda\Connection $conn)
     {
-        $this->conn = $ndb;
+        $this->conn = $conn;
     }
-
 
     public function query($sql)
     {
@@ -40,13 +42,13 @@ class EdaAdapter implements IDbal
 
     public function escapeString($value)
     {
-        return $this->conn->quote($value, PDO::PARAM_STR);
+        return $this->conn->getDriver()->escapeText($value);
     }
 
 
     public function escapeInt($value)
     {
-        return $this->conn->quote($value, PDO::PARAM_INT);
+        return $this->conn->getDriver()->escapeIdentifier($value);
     }
 
 
@@ -58,13 +60,13 @@ class EdaAdapter implements IDbal
 
     public function escapeDateTime(DateTime $value)
     {
-        return $this->conn->getSupplementalDriver()->formatDateTime($value);
+        return $this->conn->getDriver()->escapeDateTime($value);
     }
 
 
     public function escapeIdentifier($value)
     {
-        return $this->conn->getSupplementalDriver()->delimite($value);
+        return $this->conn->getDriver()->escapeIdentifier($value);
     }
 
 }
