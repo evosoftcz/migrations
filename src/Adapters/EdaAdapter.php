@@ -27,10 +27,15 @@ class EdaAdapter implements IDbal
 
     public function query($sql)
     {
-        return array_map(
-            function ($row) { return (array) $row; },
-            $this->conn->fetchAll($sql)
-        );
+        try {
+            $result = $this->conn->query($sql);
+            $x = $result->fetchAll();
+        } catch (\Exception $e) {
+            dump($e->getMessage());
+            exit;
+        }
+
+        return $x;
     }
 
 
