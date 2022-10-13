@@ -47,31 +47,35 @@ class EdaAdapter implements IDbal
 
     public function escapeString($value)
     {
-        return $this->conn->getDriver()->escapeText($value);
+        return $this->conn->getDriver()->getParent()->getTranslator()::normalizeStringType($value, true);
     }
 
 
     public function escapeInt($value)
     {
-        return $this->conn->getDriver()->escapeIdentifier($value);
+        return $this->conn->getDriver()->getParent()->getTranslator()::normalizeIntegerType($value, true);
     }
 
 
     public function escapeBool($value)
     {
-        return $this->escapeString((string) (int) $value);
+        return $this->conn->getDriver()->getParent()->getTranslator()::normalizeBoolType($value, true);
     }
 
 
     public function escapeDateTime(DateTime $value)
     {
-        return $this->conn->getDriver()->escapeDateTime($value);
+        return $this->conn->getDriver()->getParent()->getTranslator()::normalizeDateTimeType($value, true);
     }
 
 
     public function escapeIdentifier($value)
     {
-        return $this->conn->getDriver()->escapeIdentifier($value);
+        if ($this->conn->isOracle()) {
+            return str_replace('"', '""', $value);
+        } else {
+            return '"' . str_replace('"', '""', $value) . '"';
+        }
     }
 
 }
