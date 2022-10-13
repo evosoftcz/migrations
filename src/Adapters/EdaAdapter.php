@@ -47,36 +47,31 @@ class EdaAdapter implements IDbal
 
     public function escapeString($value)
     {
-//        return $this->conn->getDriver()->escapeText($value);
-        return (string) $value;
+        return $this->conn->getDriver()->escapeText($value);
     }
 
 
     public function escapeInt($value)
     {
-//        return $this->conn->getDriver()->escapeIdentifier($value);
-        return (int) $value;
+        return $this->conn->getDriver()->escapeIdentifier($value);
     }
 
 
     public function escapeBool($value)
     {
-//        return $this->escapeString((string) (int) $value);
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        return $this->escapeString((string) (int) $value);
     }
 
 
     public function escapeDateTime(DateTime $value)
     {
-//        return $this->conn->getDriver()->escapeDateTime($value);
-        return $value;
+        return $this->conn->getDriver()->escapeDateTime($value);
     }
 
 
     public function escapeIdentifier($value)
     {
-//        return $this->conn->getDriver()->escapeIdentifier($value);
-        return $value;
+        return $this->conn->getDriver()->escapeIdentifier($value);
     }
 
 }
